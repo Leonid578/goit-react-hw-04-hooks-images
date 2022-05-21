@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import style from './App.module.css';
 import ImageGallery from './ImageGallery/ImageGallery';
 import Searchbar from './Searchbar/Searchbar';
@@ -10,120 +10,103 @@ import { fetchGalery } from 'utilits/fetchGalery'; // функция не дел
 import { ToastContainer, toast } from 'react-toastify'; // попапы
 
 
-class App extends React.Component {
-  state = {
-    pages: 1, //текущая страница
-    searchWord: '', //поисковое слово
-    arreyImg: [], //картинки с сервера
-    modal: null, //рендерит либо нет модалку
-    sceleton: false, //рендерит либо нет анимацию загрузки
-    error: null, //хранит информацию об ошибках сервера
-    buttonIs: false, // рендерит или нет кнопку еще
+const App = () => {
+  const [pages, setPages] = useState(1)
+  const [searchWord, setSearchWord] = useState("")
+  const [arreyImg, setArreyImg] = useState([])
+  const [modal, setModal] = useState(null)
+  const [error, setError] = useState(null)
+  const [buttonIs, setButtonIs] = useState(false)
+  const [sceleton, setSceleton] = useState(false)
+
+    //это функция пропс для поискового запроса
+    //при новом поисковом слове скинем страницу в первую.
+  const newSearchWord = searchWord => {
+    setSearchWord(searchWord);
+    setPages(1)
   };
 
-  //это функция пропс для поискового запроса
-  //при новом поисковом слове скинем страницу в первую.
-  setSearchWord = searchWord => {
-    this.setState({ searchWord: searchWord, pages: 1 });
+    //это функция пропс для кнопки листания страниц
+  const loadMore = () => {
+    Scroll.animateScroll.scrollMore(300);
+    setPages((pS)=>pS+1)
   };
 
-  //это функция пропс для кнопки листания страниц
-  loadMore = () => {
-    Scroll.animateScroll.scrollMore(600);
-    this.setState(prevState => ({
-      pages: prevState.pages + 1,
-    }));
+    // функции отрисовки новых карточек
+  const renderNew = arreyImgNew => {
+    setSceleton(false)//скрываем загрузчик
+    setArreyImg((pS)=>[...pS, ...arreyImgNew])
   };
+  // обработчик модального окна
+  const  onModalOpen = e => {
+    setModal(e.target.dataset.img)
+    };
 
-  //запрос на сервер по сабмиту
-  findImg = async isNew => {
-    
-    //рендерим загрузчик
-    this.setState({ sceleton: true });
-    try {
-      const findImgsJSON = await fetch(
-        fetchGalery(this.state.searchWord, this.state.pages)
-      );
-      const findImgs = await findImgsJSON.json();
+  const onModalClouse = () => {
+    setModal(null)
+  };
+  
+  useEffect(()=>{
+    setArreyImg([])
+  },[searchWord])
+
+  useEffect(()=>{
+    if(searchWord===""){return}
+
+    // обработка информации для пользователя
+    const info = (findImgs)=>{
       if (findImgs.totalHits === 0) {
-        this.setState({ buttonIs: false });
+        setButtonIs(false);
         toast.warning(`We cant finde nosing`);
-      } else if (findImgs.totalHits > this.state.pages * 12) {
-        this.setState({ buttonIs: true });
+      } else if (findImgs.totalHits > pages * 12) {
+        setButtonIs(true);
         toast.success(
-          `We finde ${this.state.pages * 12} of ${findImgs.totalHits} imeges`
+          `We finde ${pages * 12} of ${findImgs.totalHits} imeges`
         );
-      } else if (findImgs.totalHits < this.state.pages * 12) {
-        this.setState({ buttonIs: false });
+      } else if (findImgs.totalHits < pages * 12) {
+        setButtonIs(false);
         toast.warning(`We finde last imges of ${findImgs.totalHits} imeges`);
       }
-      // и вызовем функцию отрисовки
-      isNew ? this.renderNew(findImgs.hits) : this.renderMore(findImgs.hits);
-    } catch (err) {
-      this.setState({ error: err });
-      toast.error(`Happend ${this.state.error}`);
     }
-    //скрываем загрузчик
-    this.setState({ sceleton: false });
-  };
+    
+    const findImg = async() => {
+      setSceleton(true)//рендерим загрузчик
+      try{
+        const findImgsJSON = await fetch(
+          fetchGalery(searchWord, pages)
+        );
+        const findImgs = await findImgsJSON.json();
+        info(findImgs)
+        renderNew(findImgs.hits)
+      }catch(err){
+        setError(err)
+        console.log(error);
+        toast.error(`Happend ${err}`);
+      }
+    }
 
-  //функция отрисовки переписывает стейт тем самым рендерит новые карточки
-  renderMore = arreyImg => {
-    this.setState(prevState => ({
-      arreyImg: [...prevState.arreyImg, ...arreyImg],
-    }));
-  };
+    findImg()
+  },[error, pages, searchWord])
 
-  renderNew = arreyImg => {
-    this.setState(() => ({
-      arreyImg: [...arreyImg],
-    }));
-  };
 
-  // при изменении состояния поиска вызывает запрос
-  componentDidUpdate(pProp, pState) {
-    if (pState.searchWord !== this.state.searchWord) {
-      this.findImg(true);
-    } //если новое слово тру
-    else if (pState.pages !== this.state.pages) {
-      this.findImg(false);
-    } //если старое слово фолс
-  }
-
-  onModalOpen = e => {
-    console.log(e.target.dataset.img);
-    this.setState(() => ({
-      modal: e.target.dataset.img,
-    }));
-  };
-
-  onModalClouse = () => {
-    this.setState(() => ({
-      modal: null,
-    }));
-  };
-
-  render() {
-    return (
-      <div className={style.papers}>
-        <Searchbar setSearchWord={this.setSearchWord} />
-        <ImageGallery
-          onModalOpen={this.onModalOpen}
-          arreyImg={this.state.arreyImg}
-        />
-        {this.state.sceleton && <Loader />}
-        {this.state.arreyImg.length > 0 && this.state.buttonIs === true && (
-          <Button loadMore={this.loadMore} />
-        )}
-        {this.state.modal && (
+  return (
+    <div className={style.papers}>
+      <Searchbar setSearchWordProps={newSearchWord} />
+        {arreyImg.length > 0 && <ImageGallery
+          onModalOpen={onModalOpen}
+          arreyImg={arreyImg}
+        />}
+        {sceleton && <Loader/>}
+        {buttonIs && <Button loadMore={loadMore}/>}
+        {modal && 
           <Modal
-            imgFull={this.state.modal}
-            onModalClouse={this.onModalClouse}
+            imgFull={modal}
+            onModalClouse={onModalClouse}
           />
-        )}
-        <ToastContainer autoClose={3000} />
-      </div>
-    );
-  }
+        }
+      <ToastContainer autoClose={3000}/>  
+    </div>
+  );
 }
+
 export default App;

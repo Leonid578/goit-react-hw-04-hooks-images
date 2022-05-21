@@ -1,31 +1,24 @@
-import React from 'react';
+import {useState} from 'react';
 import s from './Searchbar.module.css';
 import { AiOutlineSearch } from 'react-icons/ai';
 import propTypes from 'prop-types';
 
-class Searchbar extends React.Component {
-  state = { searchWord: '' };
+const Searchbar = ({setSearchWordProps}) =>  {
+  const [searchWord, setSearchWord] = useState('')
 
-  onInpurWord = e => {
-    this.setState({ searchWord: e.currentTarget.value.trim() });
+  const onInpurWord = e => {
+    setSearchWord(e.currentTarget.value.trim());
   };
 
   //внутрений метод сабмита обрабатывающий событие
-  formSubmit = event => {
+  const formSubmit = event => {
     event.preventDefault();
-    this.props.setSearchWord(this.state.searchWord);
-    // this.reset(); // выяснил что не совсем удобно когда много листал забывал а что собственно ввел
+    setSearchWordProps(searchWord);
   };
 
-  // очистка формы
-  reset = () => {
-    this.setState({ searchWord: '' });
-  };
-
-  render() {
     return (
       <header className={s.searchbar}>
-        <form className={s.form} onSubmit={this.formSubmit}>
+        <form className={s.form} onSubmit={formSubmit}>
           <button type="submit" className={s.button}>
             <AiOutlineSearch className={s.search} />
           </button>
@@ -35,17 +28,16 @@ class Searchbar extends React.Component {
             autoComplete="off"
             autoFocus
             placeholder="Search images and photos"
-            onInput={this.onInpurWord}
-            value={this.state.searchWord}
+            onInput={onInpurWord}
+            value={searchWord}
           />
         </form>
       </header>
     );
   }
-}
-
-export default Searchbar;
 
 Searchbar.propTypes = {
   setSearchWord: propTypes.func,
 };
+
+export default Searchbar;

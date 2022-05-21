@@ -1,5 +1,4 @@
 import s from './ImageGallery.module.css';
-import React from 'react';
 import ImageGalleryItem from '../ImageGalleryItem/ImageGalleryItem';
 import propTypes from 'prop-types';
 
@@ -19,9 +18,10 @@ const ImageGallery = ({ onModalOpen, arreyImg }) => {
     </ul>
   );
 };
-export default ImageGallery;
 
 ImageGallery.propTypes = {
   onModalOpen: propTypes.func,
   arreyImg: propTypes.array,
 };
+
+export default ImageGallery;

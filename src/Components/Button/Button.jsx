@@ -1,5 +1,4 @@
 import s from './Button.module.css';
-import React from 'react';
 import propTypes from 'prop-types';
 
 const Button = ({ loadMore }) => {
@@ -9,8 +8,9 @@ const Button = ({ loadMore }) => {
     </button>
   );
 };
-export default Button;
 
 Button.propTypes = {
   loadMore: propTypes.func,
 };
+
+export default Button;

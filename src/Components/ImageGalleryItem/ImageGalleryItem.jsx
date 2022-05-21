@@ -1,5 +1,4 @@
 import s from './ImageGalleryItem.module.css';
-import React from 'react';
 import propTypes from 'prop-types';
 
 const ImageGalleryItem = ({ webformatURL, tags, largeImageURL }) => {
@@ -15,10 +14,12 @@ const ImageGalleryItem = ({ webformatURL, tags, largeImageURL }) => {
     </li>
   );
 };
-export default ImageGalleryItem;
+
 
 ImageGalleryItem.propTypes = {
   webformatURL: propTypes.string,
   largeImageURL: propTypes.string,
   tags: propTypes.string,
 };
+
+export default ImageGalleryItem;
