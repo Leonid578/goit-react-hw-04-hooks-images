@@ -14,8 +14,8 @@ const App = () => {
   const [pages, setPages] = useState(1)
   const [searchWord, setSearchWord] = useState("")
   const [arreyImg, setArreyImg] = useState([])
-  const [modal, setModal] = useState(null)
-  const [error, setError] = useState(null)
+  const [modal, setModal] = useState("")
+  const [error, setError] = useState("")
   const [buttonIs, setButtonIs] = useState(false)
   const [sceleton, setSceleton] = useState(false)
 
