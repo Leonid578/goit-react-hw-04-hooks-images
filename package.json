@@ -1,8 +1,8 @@
 {
-  "name": "goit-react-hw-04-hooks-phonebook",
+  "name": "goit-react-hw-04-hooks-images",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://Leonid578/goit-react-hw-04-hooks-phonebook/",
+  "homepage": "https://Leonid578/goit-react-hw-04-hooks-images/",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.3",
     "@testing-library/react": "^12.1.4",
